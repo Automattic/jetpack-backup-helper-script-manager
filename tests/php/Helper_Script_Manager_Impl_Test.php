@@ -1,4 +1,9 @@
-<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+<?php
+/**
+ * Unit tests for the Helper_Script_Manager_Impl class.
+ *
+ * @package automattic/jetpack-backup
+ */
 
 // After changing this file, consider increasing the version number ("VXXX") in all the files using this namespace, in
 // order to ensure that the specific version of this file always get loaded. Otherwise, Jetpack autoloader might decide
@@ -11,12 +16,7 @@ use WorDBless\BaseTestCase;
 use WP_Error;
 use function get_site_url;
 
-/**
- * Unit tests for the Helper_Script_Manager_Impl class.
- *
- * @package automattic/jetpack-backup
- */
-class Test_Helper_Script_Manager_Impl extends BaseTestCase {
+class Helper_Script_Manager_Impl_Test extends BaseTestCase {
 
 	/**
 	 * Temporary directory where "jetpack-temp" will get created.
@@ -45,10 +45,8 @@ class Test_Helper_Script_Manager_Impl extends BaseTestCase {
 	public function set_up() {
 		$this->temp_dir = tempnam( sys_get_temp_dir(), 'jetpack' );
 
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
 		unlink( $this->temp_dir );
 
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir
 		mkdir( $this->temp_dir );
 
 		$this->install_locations = array( $this->temp_dir => $this->url );
@@ -78,7 +76,6 @@ class Test_Helper_Script_Manager_Impl extends BaseTestCase {
 		}
 
 		if ( ! is_dir( $dir ) ) {
-			// phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
 			return unlink( $dir );
 		}
 
@@ -92,7 +89,6 @@ class Test_Helper_Script_Manager_Impl extends BaseTestCase {
 			}
 		}
 
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir
 		return rmdir( $dir );
 	}
 
@@ -160,7 +156,6 @@ class Test_Helper_Script_Manager_Impl extends BaseTestCase {
 
 		$this->assertFileExists( $install_result['path'] );
 		$this->assertSame(
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 			file_get_contents( $install_result['path'] ),
 			str_replace( '[wp_path]', realpath( ABSPATH ), $script_body )
 		);
@@ -170,7 +165,6 @@ class Test_Helper_Script_Manager_Impl extends BaseTestCase {
 
 		$this->assertSame(
 			implode( "\n\n", Helper_Script_Manager_Impl::README_LINES ),
-			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 			file_get_contents( $readme_path )
 		);
 
@@ -179,7 +173,6 @@ class Test_Helper_Script_Manager_Impl extends BaseTestCase {
 
 		$this->assertSame(
 			Helper_Script_Manager_Impl::INDEX_FILE,
-			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 			file_get_contents( $index_php_path )
 		);
 	}
@@ -239,10 +232,8 @@ class Test_Helper_Script_Manager_Impl extends BaseTestCase {
 		$helper_script_manager = new Helper_Script_Manager_Impl( $this->install_locations );
 
 		$first_install_dir = array_keys( $this->install_locations )[0];
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_chmod
 		chmod( $first_install_dir, 0000 );
 		$install_result = $helper_script_manager->install_helper_script( $script_body );
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_chmod
 		chmod( $first_install_dir, 0777 );
 
 		$this->assertInstanceOf( WP_Error::class, $install_result );
@@ -297,7 +288,6 @@ class Test_Helper_Script_Manager_Impl extends BaseTestCase {
 		$this->assertArrayHasKey( 'path', $result );
 		$this->assertFileExists( $result['path'] );
 
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
 		file_put_contents( $result['path'], str_repeat( 'a', strlen( $script_body ) ) );
 
 		$delete_result = $helper_script_manager->delete_helper_script( $result['path'] );
@@ -330,11 +320,8 @@ class Test_Helper_Script_Manager_Impl extends BaseTestCase {
 		$this->assertFileExists( "$jetpack_temp_dir/README" );
 		$this->assertFileExists( "$jetpack_temp_dir/index.php" );
 
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_touch
 		touch( $install_results[0]['path'], time() - 60 * 60 * 24 * 7 );
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_touch
 		touch( $install_results[1]['path'], time() + 60 * 60 );
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_touch
 		touch( $install_results[2]['path'], time() - 60 * 60 * 24 * 7 );
 
 		$cleanup_result = $helper_script_manager->cleanup_expired_helper_scripts();
@@ -367,7 +354,6 @@ class Test_Helper_Script_Manager_Impl extends BaseTestCase {
 			$this->assertArrayHasKey( 'path', $install_result );
 			$this->assertFileExists( $install_result['path'] );
 
-			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_touch
 			touch( $install_result['path'], time() - 60 * 60 * 24 * 7 );
 		}
 
@@ -407,11 +393,9 @@ class Test_Helper_Script_Manager_Impl extends BaseTestCase {
 		$jetpack_temp_dir = dirname( $install_results[0]['path'] );
 		$this->assertDirectoryExists( $jetpack_temp_dir );
 
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
 		file_put_contents( $install_results[1]['path'], str_repeat( 'a', strlen( $script_body ) ) );
 
 		foreach ( $install_results as $install_result ) {
-			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_touch
 			touch( $install_result['path'], time() - 60 * 60 * 24 * 7 );
 		}
 
@@ -490,7 +474,6 @@ class Test_Helper_Script_Manager_Impl extends BaseTestCase {
 		$jetpack_temp_dir = dirname( $install_results[0]['path'] );
 		$this->assertDirectoryExists( $jetpack_temp_dir );
 
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
 		file_put_contents( $install_results[1]['path'], str_repeat( 'a', strlen( $script_body ) ) );
 
 		$delete_result = $helper_script_manager->delete_all_helper_scripts();
